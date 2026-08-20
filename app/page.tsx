@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 type Choice = { label: string; value: number };
 type Question = { label: string; shortLabel: string; choices: Choice[] };
@@ -38,12 +38,11 @@ const questions: Question[] = [
   },
 ];
 
-const journey = [
-  "Read India’s AI Inflection Point",
-  "Scan the permanent NxtGen QR",
-  "Assess enterprise AI readiness",
-  "Explore a clear deployment path",
-];
+const interestMailto = `mailto:marketing@nxtgen.com?subject=${encodeURIComponent(
+  "AI@Work Edition 01 — Register interest",
+)}&body=${encodeURIComponent(
+  "I read the 1st editorial on the Financial Express, “India’s AI Inflection Point”, and found it insightful.",
+)}`;
 
 function getPathResult(score: number) {
   if (score <= 2) {
@@ -187,58 +186,6 @@ function Pathfinder() {
   );
 }
 
-function SubscribeForm() {
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
-
-  async function subscribe(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setState("submitting");
-    setMessage("");
-    try {
-      const response = await fetch("/api/subscriptions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const payload = (await response.json()) as { error?: string; alreadySubscribed?: boolean };
-      if (!response.ok) throw new Error(payload.error ?? "We could not register your interest.");
-      setState("success");
-      setMessage(payload.alreadySubscribed ? "You’re already on the Edition 02 list." : "Thank you. We’ll keep you informed about Edition 02.");
-      setEmail("");
-    } catch (error) {
-      setState("error");
-      setMessage(error instanceof Error ? error.message : "Please try again.");
-    }
-  }
-
-  return (
-    <form className="signup" onSubmit={subscribe}>
-      <label htmlFor="edition-email">Receive the next edition</label>
-      <div className="email-row">
-        <input
-          id="edition-email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="Work email address"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <button type="submit" disabled={state === "submitting"}>
-          {state === "submitting" ? "Registering…" : "Keep me informed"}
-        </button>
-      </div>
-      <small>
-        By registering, you agree to NxtGen’s <a href="https://nxtgen.com/privacy-policy">privacy policy</a>.
-      </small>
-      <p className={`form-message ${state}`} role="status" aria-live="polite">{message}</p>
-    </form>
-  );
-}
-
 export default function Home() {
   return (
     <div className="site-shell">
@@ -250,7 +197,6 @@ export default function Home() {
           </a>
           <nav className="nav" aria-label="Primary navigation">
             <a href="#assessment">Path Finder</a>
-            <a href="#journey">The journey</a>
             <a href="#next-edition">Next edition</a>
             <a className="nav-cta" href="https://nxtgen.com/contact-us">Speak to an Expert</a>
           </nav>
@@ -268,7 +214,7 @@ export default function Home() {
           <div className="container hero-inner">
             <div className="hero-copy">
               <div className="edition-pill"><span /> Edition 01 companion page</div>
-              <h1 id="hero-title">India’s AI<br />Inflection Point</h1>
+              <h1 id="hero-title">India’s AI<br />Inflection<span className="mobile-title-break"><br /></span> Point</h1>
               <p>Move from AI ambition to a clear, secure deployment path.</p>
               <div className="hero-actions">
                 <a className="button button-primary" href="#assessment">
@@ -294,26 +240,6 @@ export default function Home() {
 
         <Pathfinder />
 
-        <section className="content-section" id="journey" aria-labelledby="journey-title">
-          <div className="container section-grid">
-            <div className="section-intro">
-              <span className="section-kicker">THE COMPANION JOURNEY</span>
-              <h2 className="section-title" id="journey-title">From article to a practical next step.</h2>
-              <p className="section-copy">
-                AI@Work turns the ideas in India’s AI Inflection Point into a focused readiness journey for enterprise teams.
-              </p>
-            </div>
-            <ol className="journey" aria-label="Four-step companion journey">
-              {journey.map((item, index) => (
-                <li className="journey-row" key={item}>
-                  <span className="journey-number">0{index + 1}</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
         <section className="edition" id="next-edition" aria-labelledby="edition-title">
           <div className="container edition-grid">
             <div>
@@ -321,7 +247,14 @@ export default function Home() {
               <h2 id="edition-title">Continue the AI@Work conversation.</h2>
               <p>Receive the next edition and stay connected to NxtGen’s enterprise AI perspective.</p>
             </div>
-            <SubscribeForm />
+            <div className="signup static-signup">
+              <span className="signup-title">Receive the next edition</span>
+              <p>Open a pre-addressed email to NxtGen Marketing to register your interest in AI@Work Edition 02.</p>
+              <a className="button button-light" href={interestMailto}>
+                Register interest <span aria-hidden="true">→</span>
+              </a>
+              <small>Your email app will open with the message already prepared.</small>
+            </div>
           </div>
         </section>
 
